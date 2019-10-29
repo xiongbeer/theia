@@ -3,6 +3,7 @@
 Breaking Changes:
 
 - [task] Widened the scope of some methods in TaskManager and TaskConfigurations from string to TaskConfigurationScope. This is only breaking for extenders, not callers. [#7928](https://github.com/eclipse-theia/theia/pull/7928)
+- [electron] Electron applications can now be configured/extended through inversify. Added new `electronMain` theia extension points to provide inversify container modules.
 
 ## v1.2.0
 
