@@ -51,7 +51,6 @@ import { PluginDebugSessionContributionRegistry } from './debug/plugin-debug-ses
 import { PluginDebugService } from './debug/plugin-debug-service';
 import { DebugService } from '@theia/debug/lib/common/debug-service';
 import { PluginSharedStyle } from './plugin-shared-style';
-import { FSResourceResolver } from './file-system-main';
 import { SelectionProviderCommandContribution } from './selection-provider-command';
 import { ViewColumnService } from './view-column-service';
 import { ViewContextKeyService } from './view/view-context-key-service';
@@ -61,7 +60,6 @@ import { RPCProtocol } from '../../common/rpc-protocol';
 import { LanguagesMainFactory, OutputChannelRegistryFactory } from '../../common';
 import { LanguagesMainImpl } from './languages-main';
 import { OutputChannelRegistryMainImpl } from './output-channel-registry-main';
-import { InPluginFileSystemWatcherManager } from './in-plugin-filesystem-watcher-manager';
 import { WebviewWidget } from './webview/webview';
 import { WebviewEnvironment } from './webview/webview-environment';
 import { WebviewThemeDataProvider } from './webview/webview-theme-data-provider';
@@ -71,6 +69,7 @@ import { WebviewResourceCache } from './webview/webview-resource-cache';
 import { PluginIconThemeService, PluginIconThemeFactory, PluginIconThemeDefinition, PluginIconTheme } from './plugin-icon-theme-service';
 import { PluginTreeViewNodeLabelProvider } from './view/plugin-tree-view-node-label-provider';
 import { WebviewWidgetFactory } from './webview/webview-widget-factory';
+import { PluginResourceResolver } from './plugin-resource';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
 
@@ -198,11 +197,10 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
     bind(KeybindingsContributionPointHandler).toSelf().inSingletonScope();
     bind(PluginContributionHandler).toSelf().inSingletonScope();
 
-    bind(InPluginFileSystemWatcherManager).toSelf().inSingletonScope();
     bind(TextContentResourceResolver).toSelf().inSingletonScope();
     bind(ResourceResolver).toService(TextContentResourceResolver);
-    bind(FSResourceResolver).toSelf().inSingletonScope();
-    bind(ResourceResolver).toService(FSResourceResolver);
+    bind(PluginResourceResolver).toSelf().inSingletonScope();
+    bind(ResourceResolver).toService(PluginResourceResolver);
     bindContributionProvider(bind, MainPluginApiProvider);
 
     bind(LanguageClientContributionProviderImpl).toSelf().inSingletonScope();
