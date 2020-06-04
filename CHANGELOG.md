@@ -3,6 +3,7 @@
 ## v1.3.0
 
 - [scm] added support for multi-select in the Source Control view [#7900](https://github.com/eclipse-theia/theia/pull/7900)
+- [core] Added support for Node.js `12.x`. From now on, you can use Node.js `12.x` to build Theia from the sources. The recommended minimum version is aligned with `electron`: Node.js `12.14.1`. The support for Node.js `10.x` will be dropped in on of forthcoming releases. [#7968](https://github.com/eclipse-theia/theia/pull/7968)
 
 Breaking Changes:
 

@@ -4,11 +4,12 @@
   "version": "0.0.0",
   "engines": {
     "yarn": "1.0.x || >=1.2.1",
-    "node": ">=10.11.0 <12"
+    "node": ">=10.11.0 <13"
   },
   "resolutions": {
     "**/@types/node": "~10.3.6",
-    "**/vscode-json-languageserver/**/vscode-languageserver": "6.0.0-next.1"
+    "**/vscode-json-languageserver/**/vscode-languageserver": "6.0.0-next.1",
+    "**/node-abi": "^2.18.0"
   },
   "devDependencies": {
     "@types/chai-string": "^1.4.0",
@@ -41,8 +42,8 @@
     "uuid": "^8.0.0"
   },
   "scripts": {
-    "preinstall": "node-gyp install",
-    "postinstall": "node scripts/post-install.js",
+    "preinstall": "node-gyp install && node scripts/preinstall.js",
+    "postinstall": "node scripts/postinstall.js",
     "prepare": "yarn prepare:travis && yarn prepare:references && yarn prepare:build && yarn prepare:hoisting && yarn download:plugins",
     "prepare:travis": "node scripts/prepare-travis.js",
     "prepare:references": "node scripts/compile-references.js",
