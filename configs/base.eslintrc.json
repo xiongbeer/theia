@@ -11,7 +11,8 @@
     "@typescript-eslint",
     "@typescript-eslint/tslint",
     "import",
-    "no-null"
+    "no-null",
+    "deprecation"
   ],
   "env": {
     "browser": true,

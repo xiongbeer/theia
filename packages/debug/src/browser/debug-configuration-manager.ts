@@ -35,8 +35,9 @@ import { DebugService } from '../common/debug-service';
 import { ContextKey, ContextKeyService } from '@theia/core/lib/browser/context-key-service';
 import { DebugConfiguration } from '../common/debug-common';
 import { WorkspaceVariableContribution } from '@theia/workspace/lib/browser/workspace-variable-contribution';
-import { FileSystem, FileSystemError } from '@theia/filesystem/lib/common';
 import { PreferenceConfigurations } from '@theia/core/lib/browser/preferences/preference-configurations';
+import { TextBuffer } from '@theia/filesystem/lib/common/buffer';
+import { TextFileService } from '@theia/filesystem/lib/browser/text-file-service';
 
 export interface WillProvideDebugConfiguration extends WaitUntilEvent {
 }
@@ -56,8 +57,8 @@ export class DebugConfigurationManager {
     @inject(ContextKeyService)
     protected readonly contextKeyService: ContextKeyService;
 
-    @inject(FileSystem)
-    protected readonly filesystem: FileSystem;
+    @inject(TextFileService)
+    protected readonly fileService: TextFileService;
 
     @inject(PreferenceService)
     protected readonly preferences: PreferenceService;
@@ -273,17 +274,7 @@ export class DebugConfigurationManager {
         const debugType = await this.selectDebugType();
         const configurations = debugType ? await this.provideDebugConfigurations(debugType, model.workspaceFolderUri) : [];
         const content = this.getInitialConfigurationContent(configurations);
-        const fileStat = await this.filesystem.getFileStat(uri.toString());
-        if (!fileStat) {
-            throw new Error(`file not found: ${uri.toString()}`);
-        }
-        try {
-            await this.filesystem.setContent(fileStat, content);
-        } catch (e) {
-            if (!FileSystemError.FileExists.is(e)) {
-                throw e;
-            }
-        }
+        await this.fileService.writeFile(uri, TextBuffer.fromString(content));
         return uri;
     }
 

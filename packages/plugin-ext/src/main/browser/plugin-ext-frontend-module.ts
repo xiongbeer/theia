@@ -69,7 +69,6 @@ import { WebviewResourceCache } from './webview/webview-resource-cache';
 import { PluginIconThemeService, PluginIconThemeFactory, PluginIconThemeDefinition, PluginIconTheme } from './plugin-icon-theme-service';
 import { PluginTreeViewNodeLabelProvider } from './view/plugin-tree-view-node-label-provider';
 import { WebviewWidgetFactory } from './webview/webview-widget-factory';
-import { PluginResourceResolver } from './plugin-resource';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
 
@@ -199,8 +198,6 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
 
     bind(TextContentResourceResolver).toSelf().inSingletonScope();
     bind(ResourceResolver).toService(TextContentResourceResolver);
-    bind(PluginResourceResolver).toSelf().inSingletonScope();
-    bind(ResourceResolver).toService(PluginResourceResolver);
     bindContributionProvider(bind, MainPluginApiProvider);
 
     bind(LanguageClientContributionProviderImpl).toSelf().inSingletonScope();

@@ -20,10 +20,10 @@
 
 /* eslint-disable max-len */
 
-import { URI } from 'vscode-uri';
-import { VSBuffer, VSBufferWriteableStream, newWriteableBufferStream, VSBufferReadableStream } from './buffer';
+import URI from '@theia/core/lib/common/uri';
+import { TextBuffer, TextBufferWriteableStream, newWriteableBufferStream, TextBufferReadableStream } from './buffer';
 import { CancellationToken, cancelled as canceled } from '@theia/core/lib/common/cancellation';
-import { IFileSystemProviderWithOpenReadWriteCloseCapability, FileReadStreamOptions, ensureFileSystemProviderError } from './files';
+import { FileSystemProviderWithOpenReadWriteCloseCapability, FileReadStreamOptions, ensureFileSystemProviderError } from './files';
 
 export interface ICreateReadStreamOptions extends FileReadStreamOptions {
 
@@ -33,7 +33,7 @@ export interface ICreateReadStreamOptions extends FileReadStreamOptions {
     bufferSize: number;
 }
 
-export function createReadStream(provider: IFileSystemProviderWithOpenReadWriteCloseCapability, resource: URI, options: ICreateReadStreamOptions, token?: CancellationToken): VSBufferReadableStream {
+export function createReadStream(provider: FileSystemProviderWithOpenReadWriteCloseCapability, resource: URI, options: ICreateReadStreamOptions, token?: CancellationToken): TextBufferReadableStream {
     const stream = newWriteableBufferStream();
 
     // do not await reading but simply return the stream directly since it operates
@@ -44,7 +44,7 @@ export function createReadStream(provider: IFileSystemProviderWithOpenReadWriteC
     return stream;
 }
 
-async function doReadFileIntoStream(provider: IFileSystemProviderWithOpenReadWriteCloseCapability, resource: URI, stream: VSBufferWriteableStream, options: ICreateReadStreamOptions, token?: CancellationToken): Promise<void> {
+async function doReadFileIntoStream(provider: FileSystemProviderWithOpenReadWriteCloseCapability, resource: URI, stream: TextBufferWriteableStream, options: ICreateReadStreamOptions, token?: CancellationToken): Promise<void> {
 
     // Check for cancellation
     throwIfCancelled(token);
@@ -59,7 +59,7 @@ async function doReadFileIntoStream(provider: IFileSystemProviderWithOpenReadWri
         let bytesRead = 0;
         let allowedRemainingBytes = (options && typeof options.length === 'number') ? options.length : undefined;
 
-        let buffer = VSBuffer.alloc(Math.min(options.bufferSize, typeof allowedRemainingBytes === 'number' ? allowedRemainingBytes : options.bufferSize));
+        let buffer = TextBuffer.alloc(Math.min(options.bufferSize, typeof allowedRemainingBytes === 'number' ? allowedRemainingBytes : options.bufferSize));
 
         let posInFile = options && typeof options.position === 'number' ? options.position : 0;
         let posInBuffer = 0;
@@ -79,7 +79,7 @@ async function doReadFileIntoStream(provider: IFileSystemProviderWithOpenReadWri
             if (posInBuffer === buffer.byteLength) {
                 stream.write(buffer);
 
-                buffer = VSBuffer.alloc(Math.min(options.bufferSize, typeof allowedRemainingBytes === 'number' ? allowedRemainingBytes : options.bufferSize));
+                buffer = TextBuffer.alloc(Math.min(options.bufferSize, typeof allowedRemainingBytes === 'number' ? allowedRemainingBytes : options.bufferSize));
 
                 posInBuffer = 0;
             }

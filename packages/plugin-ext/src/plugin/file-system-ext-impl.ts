@@ -27,15 +27,15 @@ import { URI, UriComponents } from 'vscode-uri';
 import { RPCProtocol } from '../common/rpc-protocol';
 import { PLUGIN_RPC_CONTEXT, FileSystemExt, FileSystemMain, IFileChangeDto } from '../common/plugin-api-rpc';
 import * as vscode from '@theia/plugin';
-import * as files from '../common/files';
+import * as files from '@theia/filesystem/lib/common/files';
 import { FileChangeType, FileSystemError } from './types-impl';
 import * as typeConverter from './type-converters';
 import { LanguagesExtImpl } from './languages';
 import { Schemes as Schemas } from '../common/uri-components';
 import { State, StateMachine, LinkComputer, Edge } from '../common/link-computer';
-import { commonPrefixLength } from '@theia/languages/lib/common/language-selector/strings';
-import { CharCode } from '@theia/languages/lib/common/language-selector/char-code';
-import { VSBuffer } from '../common/buffer';
+import { commonPrefixLength } from '@theia/core/lib/common/strings';
+import { CharCode } from '@theia/core/lib/common/char-code';
+import { TextBuffer } from '@theia/filesystem/lib/common/buffer';
 
 type IDisposable = vscode.Disposable;
 
@@ -147,7 +147,7 @@ class ConsumerFileSystem implements vscode.FileSystem {
         return this._proxy.$readFile(uri).then(buff => buff.buffer).catch(ConsumerFileSystem._handleError);
     }
     writeFile(uri: vscode.Uri, content: Uint8Array): Promise<void> {
-        return this._proxy.$writeFile(uri, VSBuffer.wrap(content)).catch(ConsumerFileSystem._handleError);
+        return this._proxy.$writeFile(uri, TextBuffer.wrap(content)).catch(ConsumerFileSystem._handleError);
     }
     delete(uri: vscode.Uri, options?: { recursive?: boolean; useTrash?: boolean; }): Promise<void> {
         return this._proxy.$delete(uri, { ...{ recursive: false, useTrash: false }, ...options }).catch(ConsumerFileSystem._handleError);
@@ -289,12 +289,12 @@ export class FileSystemExtImpl implements FileSystemExt {
         };
     }
 
-    private static _asIStat(stat: vscode.FileStat): files.IStat {
+    private static _asIStat(stat: vscode.FileStat): files.Stat {
         const { type, ctime, mtime, size } = stat;
         return { type, ctime, mtime, size };
     }
 
-    $stat(handle: number, resource: UriComponents): Promise<files.IStat> {
+    $stat(handle: number, resource: UriComponents): Promise<files.Stat> {
         return Promise.resolve(this._getFsProvider(handle).stat(URI.revive(resource))).then(FileSystemExtImpl._asIStat);
     }
 
@@ -302,11 +302,11 @@ export class FileSystemExtImpl implements FileSystemExt {
         return Promise.resolve(this._getFsProvider(handle).readDirectory(URI.revive(resource)));
     }
 
-    $readFile(handle: number, resource: UriComponents): Promise<VSBuffer> {
-        return Promise.resolve(this._getFsProvider(handle).readFile(URI.revive(resource))).then(data => VSBuffer.wrap(data));
+    $readFile(handle: number, resource: UriComponents): Promise<TextBuffer> {
+        return Promise.resolve(this._getFsProvider(handle).readFile(URI.revive(resource))).then(data => TextBuffer.wrap(data));
     }
 
-    $writeFile(handle: number, resource: UriComponents, content: VSBuffer, opts: files.FileWriteOptions): Promise<void> {
+    $writeFile(handle: number, resource: UriComponents, content: TextBuffer, opts: files.FileWriteOptions): Promise<void> {
         return Promise.resolve(this._getFsProvider(handle).writeFile(URI.revive(resource), content.buffer, opts));
     }
 
@@ -330,7 +330,7 @@ export class FileSystemExtImpl implements FileSystemExt {
         return Promise.resolve(this._getFsProvider(handle).createDirectory(URI.revive(resource)));
     }
 
-    $watch(handle: number, session: number, resource: UriComponents, opts: files.IWatchOptions): void {
+    $watch(handle: number, session: number, resource: UriComponents, opts: files.WatchOptions): void {
         const subscription = this._getFsProvider(handle).watch(URI.revive(resource), opts);
         this._watches.set(session, subscription);
     }
@@ -359,18 +359,18 @@ export class FileSystemExtImpl implements FileSystemExt {
         return Promise.resolve(provider.close(fd));
     }
 
-    $read(handle: number, fd: number, pos: number, length: number): Promise<VSBuffer> {
+    $read(handle: number, fd: number, pos: number, length: number): Promise<TextBuffer> {
         const provider = this._getFsProvider(handle);
         if (!provider.read) {
             throw new Error('FileSystemProvider does not implement "read"');
         }
-        const data = VSBuffer.alloc(length);
+        const data = TextBuffer.alloc(length);
         return Promise.resolve(provider.read(fd, pos, data.buffer, 0, length)).then(read => {
             return data.slice(0, read); // don't send zeros
         });
     }
 
-    $write(handle: number, fd: number, pos: number, data: VSBuffer): Promise<number> {
+    $write(handle: number, fd: number, pos: number, data: TextBuffer): Promise<number> {
         const provider = this._getFsProvider(handle);
         if (!provider.write) {
             throw new Error('FileSystemProvider does not implement "write"');

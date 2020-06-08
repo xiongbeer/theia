@@ -21,14 +21,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/tslint/config */
 
-import { URI } from 'vscode-uri';
-import { CharCode } from '@theia/languages/lib/common/language-selector/char-code';
-import { OS } from '@theia/core/lib/common/os';
-import { compareSubstringIgnoreCase, compare, compareSubstring } from '@theia/languages/lib/common/language-selector/strings';
-import { Schemes } from './uri-components';
-
-// TODO should not it be backend based?
-const isLinux = OS.type() === OS.Type.Linux;
+import URI from './uri';
+import { CharCode } from './char-code';
+import { compareSubstringIgnoreCase, compare, compareSubstring } from './strings';
 
 export interface IKeyIterator<K> {
     reset(key: K): this;
@@ -102,6 +97,10 @@ export class UriIterator implements IKeyIterator<URI> {
     private _states: UriIteratorState[] = [];
     private _stateIdx: number = 0;
 
+    constructor(
+        protected readonly caseSensitive: boolean
+    ) { }
+
     reset(key: URI): this {
         this._value = key;
         this._states = [];
@@ -112,11 +111,8 @@ export class UriIterator implements IKeyIterator<URI> {
             this._states.push(UriIteratorState.Authority);
         }
         if (this._value.path) {
-            // todo@jrieken the case-sensitive logic is copied form `resources.ts#hasToIgnoreCase`
-            // which cannot be used because it depends on this
-            const caseSensitive = key.scheme === Schemes.file && isLinux;
-            this._pathIterator = new PathIterator(false, caseSensitive);
-            this._pathIterator.reset(key.path);
+            this._pathIterator = new PathIterator(false, this.caseSensitive);
+            this._pathIterator.reset(key.path.toString());
             if (this._pathIterator.value()) {
                 this._states.push(UriIteratorState.Path);
             }
@@ -191,8 +187,8 @@ class TernarySearchTreeNode<K, V> {
 
 export class TernarySearchTree<K, V> {
 
-    static forUris<E>(): TernarySearchTree<URI, E> {
-        return new TernarySearchTree<URI, E>(new UriIterator());
+    static forUris<E>(caseSensitive: boolean): TernarySearchTree<URI, E> {
+        return new TernarySearchTree<URI, E>(new UriIterator(caseSensitive));
     }
 
     static forPaths<E>(): TernarySearchTree<string, E> {

@@ -19,8 +19,10 @@ import { JsonRpcServer, ApplicationError } from '@theia/core/lib/common';
 import { injectable } from 'inversify';
 export const fileSystemPath = '/services/filesystem';
 
+/**
+ * @deprecated since 1.4.0 - in order to suppot VS Code FS API (https://github.com/eclipse-theia/theia/pull/7908), use `FileService` instead
+ */
 export const FileSystem = Symbol('FileSystem');
-
 export interface FileSystem extends JsonRpcServer<FileSystemClient> {
 
     /**

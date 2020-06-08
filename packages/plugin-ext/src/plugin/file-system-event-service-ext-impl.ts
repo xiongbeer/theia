@@ -30,7 +30,7 @@ import { EditorsAndDocumentsExtImpl as ExtHostDocumentsAndEditors } from './edit
 import type * as vscode from '@theia/plugin';
 import * as typeConverter from './type-converters';
 import { Disposable, WorkspaceEdit } from './types-impl';
-import { FileOperation } from '../common/files';
+import { FileOperation } from '@theia/filesystem/lib/common/files';
 import { flatten } from '../common/arrays';
 import { CancellationToken } from '@theia/core/lib/common/cancellation';
 import {

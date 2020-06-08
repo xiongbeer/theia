@@ -19,6 +19,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 /* eslint-disable max-len */
+/* eslint-disable no-null/no-null */
 /* eslint-disable @typescript-eslint/tslint/config */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

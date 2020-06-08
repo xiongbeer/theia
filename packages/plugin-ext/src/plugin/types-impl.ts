@@ -28,10 +28,10 @@ import * as theia from '@theia/plugin';
 import * as crypto from 'crypto';
 import { URI } from 'vscode-uri';
 import { relative } from '../common/paths-util';
-import { startsWithIgnoreCase } from '@theia/languages/lib/common/language-selector/strings';
+import { startsWithIgnoreCase } from '@theia/core/lib/common/strings';
 import { MarkdownString, isMarkdownString } from './markdown-string';
 import { SymbolKind } from '../common/plugin-api-rpc-model';
-import { FileSystemProviderErrorCode, markAsFileSystemProviderError } from '../common/files';
+import { FileSystemProviderErrorCode, markAsFileSystemProviderError } from '@theia/filesystem/lib/common/files';
 
 export class Disposable {
     private disposable: undefined | (() => void);

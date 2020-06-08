@@ -22,7 +22,8 @@
 
 import * as strings from './strings';
 import * as paths from './paths';
-import { CharCode } from './char-code';
+import { CharCode } from '@theia/core/lib/common/char-code';
+
 /* eslint-disable no-shadow, no-null/no-null */
 export interface IExpression {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

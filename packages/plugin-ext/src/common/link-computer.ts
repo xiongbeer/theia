@@ -21,7 +21,7 @@
 /* eslint-disable max-len */
 
 import { CharacterClassifier } from './character-classifier';
-import { CharCode } from '@theia/languages/lib/common/language-selector/char-code';
+import { CharCode } from '@theia/core/src/common/char-code';
 import { DocumentLink as ILink } from './plugin-api-rpc-model';
 
 export interface ILinkComputerTarget {

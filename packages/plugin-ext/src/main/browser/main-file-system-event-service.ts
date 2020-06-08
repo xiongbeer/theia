@@ -22,13 +22,13 @@ import { interfaces } from 'inversify';
 import { RPCProtocol } from '../../common/rpc-protocol';
 import { MAIN_RPC_CONTEXT, FileSystemEvents } from '../../common/plugin-api-rpc';
 import { DisposableCollection as DisposableStore } from '@theia/core/lib/common/disposable';
-import { PluginFileService } from './plugin-file-service';
-import { FileChangeType, FileOperation } from '../../common/files';
+import { FileService } from '@theia/filesystem/lib/browser/file-service';
+import { FileChangeType, FileOperation } from '@theia/filesystem/lib/common/files';
 
 export class MainFileSystemEventService {
 
     private readonly _listener = new DisposableStore();
-    protected readonly fileService: PluginFileService;
+    protected readonly fileService: FileService;
     protected readonly textFileService: ITextFileService;
     protected readonly workingCopyFileService: IWorkingCopyFileService;
 
@@ -37,7 +37,7 @@ export class MainFileSystemEventService {
         container: interfaces.Container
     ) {
         const proxy = rpc.getProxy(MAIN_RPC_CONTEXT.ExtHostFileSystemEventService);
-        this.fileService = container.get(PluginFileService);
+        this.fileService = container.get(FileService);
 
         // file system events - (changes the editor and other make)
         const events: FileSystemEvents = {
@@ -49,13 +49,13 @@ export class MainFileSystemEventService {
             for (const change of event.changes) {
                 switch (change.type) {
                     case FileChangeType.ADDED:
-                        events.created.push(change.resource);
+                        events.created.push(change.resource['codeUri']);
                         break;
                     case FileChangeType.UPDATED:
-                        events.changed.push(change.resource);
+                        events.changed.push(change.resource['codeUri']);
                         break;
                     case FileChangeType.DELETED:
-                        events.deleted.push(change.resource);
+                        events.deleted.push(change.resource['codeUri']);
                         break;
                 }
             }
