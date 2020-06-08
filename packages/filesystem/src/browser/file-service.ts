@@ -90,9 +90,6 @@ export class FileService {
         const providerDisposables = new DisposableCollection();
         providerDisposables.push(provider.onDidChangeFile(changes => this._onDidFilesChange.fire(new FileChangesEvent(changes))));
         providerDisposables.push(provider.onDidChangeCapabilities(() => this._onDidChangeFileSystemProviderCapabilities.fire({ provider, scheme })));
-        if (typeof provider.onDidErrorOccur === 'function') {
-            providerDisposables.push(provider.onDidErrorOccur(error => this._onError.fire(new Error(error))));
-        }
 
         return Disposable.create(() => {
             this._onDidChangeFileSystemProviderRegistrations.fire({ added: false, scheme, provider });
@@ -181,9 +178,6 @@ export class FileService {
     private _onDidRunOperation = this._register(new Emitter<FileOperationEvent>());
     readonly onDidRunOperation = this._onDidRunOperation.event;
 
-    private _onError = this._register(new Emitter<Error>());
-    readonly onError = this._onError.event;
-
     resolve(resource: URI, options: ResolveMetadataFileOptions): Promise<FileStatWithMetadata>;
     resolve(resource: URI, options?: ResolveFileOptions | undefined): Promise<FileStat>;
     async resolve(resource: any, options?: any) {
@@ -246,7 +240,7 @@ export class FileService {
         // convert to file stat
         const fileStat: FileStat = {
             resource,
-            name: resource.displayName,
+            name: this.labelProvider.getName(resource),
             isFile: (stat.type & FileType.File) !== 0,
             isDirectory: (stat.type & FileType.Directory) !== 0,
             isSymbolicLink: (stat.type & FileType.SymbolicLink) !== 0,

@@ -49,6 +49,9 @@ export class FileSystemNodeOptions {
 
 }
 
+/**
+ * @deprecated since 1.4.0 - in order to suppot VS Code FS API (https://github.com/eclipse-theia/theia/pull/7908), use `DiskFileSystemProvider` instead
+ */
 @injectable()
 export class FileSystemNode implements FileSystem {
 

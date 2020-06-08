@@ -32,6 +32,8 @@ import { FileSystemProxyFactory } from './filesystem-proxy-factory';
 import { FileUploadService } from './file-upload-service';
 import { FileTreeLabelProvider } from './file-tree/file-tree-label-provider';
 import URI from '@theia/core/lib/common/uri';
+import { FileService } from './file-service';
+import { RemoteFileSystemProvider, RemoteFileSystemServer } from '../common/remote-file-system-provider';
 
 export default new ContainerModule(bind => {
     bindFileSystemPreferences(bind);
@@ -68,6 +70,16 @@ export default new ContainerModule(bind => {
 
     bind(FileTreeLabelProvider).toSelf().inSingletonScope();
     bind(LabelProviderContribution).toService(FileTreeLabelProvider);
+
+    bind(RemoteFileSystemServer).toDynamicValue(ctx =>
+        WebSocketConnectionProvider.createProxy(ctx.container, fileSystemWatcherPath)
+    );
+    bind(RemoteFileSystemProvider).toSelf().inSingletonScope();
+    bind(FileService).toSelf().inSingletonScope().onActivation(({ container }, service) => {
+        const provider = container.get(RemoteFileSystemProvider);
+        service.registerProvider('file', provider);
+        return service;
+    });
 });
 
 export function bindFileResource(bind: interfaces.Bind): void {

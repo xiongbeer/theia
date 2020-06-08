@@ -474,12 +474,11 @@ export function ensureFileSystemProviderError(error?: Error): Error {
     return error;
 }
 
+export const FileSystemProvider = Symbol('FileSystemProvider');
 export interface FileSystemProvider {
 
     readonly capabilities: FileSystemProviderCapabilities;
     readonly onDidChangeCapabilities: Event<void>;
-
-    readonly onDidErrorOccur?: Event<string>; // TODO@ben remove once file watchers are solid
 
     readonly onDidChangeFile: Event<readonly FileChange[]>;
     watch(resource: URI, opts: WatchOptions): IDisposable;
