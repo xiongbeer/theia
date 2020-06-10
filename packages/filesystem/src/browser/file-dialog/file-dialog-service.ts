@@ -18,9 +18,13 @@ import { injectable, inject } from 'inversify';
 import URI from '@theia/core/lib/common/uri';
 import { MaybeArray } from '@theia/core/lib/common';
 import { LabelProvider } from '@theia/core/lib/browser';
-import { FileSystem, FileStat } from '../../common';
+import { FileSystem, FileStat as DeprecatedFileStat } from '../../common';
+import { FileStat as CurrentFileStat } from '../../common/files';
 import { DirNode } from '../file-tree';
 import { OpenFileDialogFactory, OpenFileDialogProps, SaveFileDialogFactory, SaveFileDialogProps } from './file-dialog';
+import { FileService } from '../file-service';
+
+export type FileStat = DeprecatedFileStat | CurrentFileStat;
 
 export const FileDialogService = Symbol('FileDialogService');
 export interface FileDialogService {
@@ -36,7 +40,16 @@ export interface FileDialogService {
 @injectable()
 export class DefaultFileDialogService {
 
-    @inject(FileSystem) protected readonly fileSystem: FileSystem;
+    /**
+     * @deprecated since 1.4.0 - in order to suppot VS Code FS API (https://github.com/eclipse-theia/theia/pull/7908),
+     * use instead `this.fileService` to read and `this.workingCopyFileService` to write
+     */
+    @inject(FileSystem)
+    protected readonly fileSystem: FileSystem;
+
+    @inject(FileService)
+    protected readonly fileService: FileService;
+
     @inject(OpenFileDialogFactory) protected readonly openFileDialogFactory: OpenFileDialogFactory;
     @inject(LabelProvider) protected readonly labelProvider: LabelProvider;
     @inject(SaveFileDialogFactory) protected readonly saveFileDialogFactory: SaveFileDialogFactory;
@@ -74,9 +87,9 @@ export class DefaultFileDialogService {
     protected async getRootNode(folderToOpen?: FileStat): Promise<DirNode | undefined> {
         const folder = folderToOpen || await this.fileSystem.getCurrentUserHome();
         if (folder) {
-            const folderUri = new URI(folder.uri);
+            const folderUri = 'resource' in folder ? folder.resource : new URI(folder.uri);
             const rootUri = folder.isDirectory ? folderUri : folderUri.parent;
-            const rootStat = await this.fileSystem.getFileStat(rootUri.toString());
+            const rootStat = await this.fileService.resolve(rootUri, { resolveSingleChildDescendants: true, resolveMetadata: false });
             if (rootStat) {
                 return DirNode.createRoot(rootStat);
             }

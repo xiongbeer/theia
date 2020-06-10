@@ -267,6 +267,8 @@ export class DispatchingFileSystemClient implements FileSystemClient {
 
 /**
  * A file resource with meta information.
+ *
+ * @deprecated since 1.4.0 - in order to suppot VS Code FS API (https://github.com/eclipse-theia/theia/pull/7908), use `FileStat` from `@theia/filesystem/lib/common/files` instead
  */
 export interface FileStat {
 
