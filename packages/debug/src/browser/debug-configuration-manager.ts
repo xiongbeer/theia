@@ -274,7 +274,7 @@ export class DebugConfigurationManager {
         const debugType = await this.selectDebugType();
         const configurations = debugType ? await this.provideDebugConfigurations(debugType, model.workspaceFolderUri) : [];
         const content = this.getInitialConfigurationContent(configurations);
-        await this.fileService.writeFile(uri, TextBuffer.fromString(content));
+        await this.fileService.write(uri, content);
         return uri;
     }
 
