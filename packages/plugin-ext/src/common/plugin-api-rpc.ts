@@ -79,6 +79,7 @@ import { SymbolInformation } from 'vscode-languageserver-types';
 import { ArgumentProcessor } from '../plugin/command-registry';
 import { MaybePromise } from '@theia/core/lib/common/types';
 import { QuickTitleButton } from '@theia/core/lib/common/quick-open-model';
+import { Timeline, TimelineChangeEvent } from '@theia/timeline/lib/common/timeline-protocol';
 
 export interface PreferenceData {
     [scope: number]: any;
@@ -530,6 +531,16 @@ export interface WorkspaceExt {
     $onDidRenameFiles(event: RenameFilesEventDTO): void;
     $onWillDeleteFiles(event: DeleteFilesEventDTO): Promise<any[]>;
     $onDidDeleteFiles(event: DeleteFilesEventDTO): void;
+}
+
+export interface TimelineExt {
+    $getTimeline(id: string, uri: string, options: theia.TimelineOptions, token: CancellationToken, internalOptions?: theia.TimelineOptions): Promise<Timeline | undefined>;
+}
+
+export interface TimelineMain {
+    $registerTimelineProvider(id: string, label: string, scheme: string | string[]): Promise<void>;
+    $fireTimelineChanged(e: TimelineChangeEvent | undefined): Promise<void>;
+    $unregisterTimelineProvider(source: string): Promise<void>;
 }
 
 export interface DialogsMain {
@@ -1417,7 +1428,8 @@ export const PLUGIN_RPC_CONTEXT = {
     SCM_MAIN: createProxyIdentifier<ScmMain>('ScmMain'),
     DECORATIONS_MAIN: createProxyIdentifier<DecorationsMain>('DecorationsMain'),
     WINDOW_MAIN: createProxyIdentifier<WindowMain>('WindowMain'),
-    CLIPBOARD_MAIN: <ProxyIdentifier<ClipboardMain>>createProxyIdentifier<ClipboardMain>('ClipboardMain')
+    CLIPBOARD_MAIN: <ProxyIdentifier<ClipboardMain>>createProxyIdentifier<ClipboardMain>('ClipboardMain'),
+    TIMELINE_MAIN: <ProxyIdentifier<TimelineMain>>createProxyIdentifier<TimelineMain>('TimelineMain')
 };
 
 export const MAIN_RPC_CONTEXT = {
@@ -1443,7 +1455,8 @@ export const MAIN_RPC_CONTEXT = {
     DEBUG_EXT: createProxyIdentifier<DebugExt>('DebugExt'),
     FILE_SYSTEM_EXT: createProxyIdentifier<FileSystemExt>('FileSystemExt'),
     SCM_EXT: createProxyIdentifier<ScmExt>('ScmExt'),
-    DECORATIONS_EXT: createProxyIdentifier<DecorationsExt>('DecorationsExt')
+    DECORATIONS_EXT: createProxyIdentifier<DecorationsExt>('DecorationsExt'),
+    TIMELINE_EXT: createProxyIdentifier<TimelineExt>('TimeLineExt')
 };
 
 export interface TasksExt {
